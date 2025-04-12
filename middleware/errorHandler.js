@@ -1,30 +1,21 @@
-const { constants } = require("../constants")
-const errorHandler = (err, req, res, next) => {
-    const statusCode = res.statusCode ? res.statusCode : 500;
-    
-    switch (statusCode) {
-        case constants.VALIDATION_ERROR:
-            res.json({ title: "Validation failed", message: err.message, stackTrace: err.stack });
-            break;
-        case constants.NOT_FOUND:
-            res.json({ title: "Not Found", message: err.message, stackTrace: err.stack });
-            break;
-        case constants.FORBIDDEN:
-            res.json({ title: "Forbidden", message: err.message, stackTrace: err.stack });
-            break;
-        case constants.SERVER_ERROR:
-            res.json({ title: "Server Error....", message: err.message, stackTrace: err.stack });
-                break;
-        case constants.UNAUTHORIZED:
-            res.json({ title: "Unauthorized", message: err.message, stackTrace: err.stack });
-            break;
-        default:
-            console.log("No Error, all good !");
-            break;
-    }
-     
+const { constants } = require("../constants").constants;
 
-     
+const errorHandler = (err, req, res, next) => {
+    const statusCode = res.statusCode || 500;
+    
+    const errorTitles = {
+        400: "Validation Failed",
+        401: "Unauthorized",
+        403: "Forbidden",
+        404: "Not Found",
+        500: "Server Error"
+    };
+
+    res.status(statusCode).json({
+        title: errorTitles[statusCode] || "Error",
+        message: err.message,
+        stackTrace: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
 };
 
 module.exports = errorHandler;
